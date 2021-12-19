@@ -12,7 +12,7 @@ jobs:
       - name: Clone
         run: |
           git init
-          git remote add origin https://github.com/${GITHUB_REPOSITORY}.git
+          git remote add origin https://github.com/shimingy-zx/test.git
           git fetch --all
           for branch in `git branch -a | grep remotes | grep -v HEAD`; do
             git branch --track ${branch##*/} $branch
@@ -31,6 +31,6 @@ jobs:
           git push --all --force gitee
           git push --tags --force gitee
         env:
-          GITEE_REPOSITORY: shenweiyan/GitHub-SYNC
+          GITEE_REPOSITORY: shimingy/test
           GITEE_USERNAME: ${{ secrets.GITEE_USERNAME }}
           GITEE_PASSWORD: ${{ secrets.GITEE_PASSWORD }}
