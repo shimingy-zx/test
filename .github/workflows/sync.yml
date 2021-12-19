@@ -1,36 +1,23 @@
-name: Sync-To-Gitee-and-Coding
+name: deploy blog to gitee
 
 on:
   push:
     branches:
-      - main
+      - main    # master 分支 push 的时候触发
 
-jobs:
-  push-to-mirror:
+
+
+  sync: #同步到gitee仓库
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Clone
-        run: |
-          git init
-          git remote add origin https://github.com/shimingy-zx/test.git
-          git fetch --all
-          for branch in `git branch -a | grep remotes | grep -v HEAD`; do
-            git branch --track ${branch##*/} $branch
-          done
-        env:
-          GITHUB_REPOSITORY: shenweiyan/GitHub-SYNC
+    - name: Sync to Gitee
+      uses: wearerequired/git-mirror-action@master
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+      with:
+        # 来源仓库
+        source-repo: "git@github.com:shimingy-zx/test.git"
+        # 目标仓库
+        destination-repo: "git@gitee.com:shimingy/test.git"
 
-
-      - name: Push to Gitee
-        run: |
-          remote_repo="https://${GITEE_USERNAME}:${GITEE_PASSWORD}@gitee.com/${GITEE_REPOSITORY}.git"
-          git remote add gitee "${remote_repo}"
-          git show-ref # useful for debugging
-          git branch --verbose
-          # publish all
-          git push --all --force gitee
-          git push --tags --force gitee
-        env:
-          GITEE_REPOSITORY: shimingy/test
-          GITEE_USERNAME: ${{ secrets.GITEE_USERNAME }}
-          GITEE_PASSWORD: ${{ secrets.GITEE_PASSWORD }}
