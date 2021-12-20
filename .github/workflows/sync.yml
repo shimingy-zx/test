@@ -1,61 +1,18 @@
-name: deploy blog to gitee
+name: Sync To Gitee
 
-on:
-  push:
-    branches:
-      - main    # master 分支 push 的时候触发
+on: [ push, delete, create ]
 
 jobs:
-  deploy: #执行部署Hugo生成静态代码，默认放在gh-pages分支
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive  # Fetch Hugo themes (true OR recursive)
-          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: '0.81.0'
-          extended: true #不需要extended版本就可以注释
-
-      - name: Build
-        run: hugo --minify
-
-      - name: Deploypage
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          personal_token: ${{ secrets.ACCESS_TOKEN }}
-          external_repository: JohntunLiu/JohntunLiu.github.io
-          publish_branch: gh-pages  # default: gh-pages
-          publish_dir: ./public
-
-      - name: Deploygitee
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          personal_token: ${{ secrets.ACCESS_TOKEN }}
-          publish_dir: ./public
-
-
-  sync: #同步到gitee仓库
-    needs: deploy
+  build:
     runs-on: ubuntu-latest
     steps:
-    - name: Sync to Gitee
-      uses: wearerequired/git-mirror-action@master
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
-      with:
-        # 来源仓库
-        source-repo: "git@github.com:shimingy-zx/test.git"
-        # 目标仓库
-        destination-repo: "git@gitee.com:shimingy/test.git"
-
-
-
-
-
-
-
-
+      - name: Sync to Gitee
+        uses: wearerequired/git-mirror-action@master
+        env:
+          # 注意在 Settings->Secrets 配置 GITEE_RSA_PRIVATE_KEY
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+        with:
+          # 注意替换为你的 GitHub 源仓库地址
+          source-repo: git@github.com:github-username/shimingy-zx/test.git
+          # 注意替换为你的 Gitee 目标仓库地址
+          destination-repo: git@gitee.com:gitee-username/shimingy/test.git
